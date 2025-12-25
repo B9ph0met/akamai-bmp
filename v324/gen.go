@@ -1,15 +1,5 @@
 package akamai
 
-// gen324.go - Akamai BMP v3.2.4-rc3 Sensor Generator (Panera)
-// Fixed based on Frida capture verification on 2024-12-20
-//
-// Key fixes from real app capture:
-// - Feistel hash is always 0 (not computed)
-// - Encryption suffix is $time,0,0 (no trailing $$)
-// - DCT samples are power of 2 (4, 8, 16, 32, 64)
-// - deviceInfoTime*1000 = 3000
-// - buildTime = 40000-90000 microseconds
-
 import (
 	"crypto/aes"
 	"crypto/cipher"
@@ -46,7 +36,6 @@ type Device struct {
 	AndroidID          string
 	ScreenWidth        int
 	ScreenHeight       int
-	ScreenDensity      float64
 	VersionRelease     string
 	VersionSDK         int
 	VersionCodename    string
@@ -124,7 +113,6 @@ func (g *Generator324) buildSensorData() string {
 	sb.WriteString("-1,2,-94,-102,") // Empty - no text timing
 	sb.WriteString("-1,2,-94,-108,") // Empty - no text events
 	sb.WriteString("-1,2,-94,-117,") // Empty - no touch events
-	// sb.WriteString(g.generateTouchEvents())
 	sb.WriteString("-1,2,-94,-144,")
 	sb.WriteString(orientationTimeDCT)
 	sb.WriteString("-1,2,-94,-142,")
@@ -147,27 +135,6 @@ func (g *Generator324) buildSensorData() string {
 
 	return sb.String()
 
-}
-
-func (g *Generator324) generateTouchEvents() string {
-	var sb strings.Builder
-	count := mrand.Intn(4) + 2 // 2-5 touches
-
-	for i := 0; i < count; i++ {
-		var t, action int
-		if i == 0 {
-			t = mrand.Intn(1500)
-			action = 2 // down
-		} else if mrand.Float32() < 0.5 {
-			t = mrand.Intn(30)
-			action = 3 // up
-		} else {
-			t = mrand.Intn(30)
-			action = 1 // move
-		}
-		sb.WriteString(fmt.Sprintf("%d,%d,0,0,1,1,1,-1;", action, t))
-	}
-	return sb.String()
 }
 
 func (g *Generator324) getSystemInfo() string {
@@ -344,12 +311,6 @@ func (g *Generator324) encrypt(plaintext string) (string, error) {
 		aesTime), nil
 }
 
-// ============================================================================
-// Shared Helper Functions
-// ============================================================================
-
-// computeFeistel implements Akamai's Feistel cipher (g.c in JADX)
-// Args: combined = (totalSum << 32) | sampleCount, elapsed = elapsed time ms
 func computeFeistel(elapsed int, combined int64) int64 {
 	left := int32(combined)
 	right := int32(combined >> 32)

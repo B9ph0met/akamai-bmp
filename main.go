@@ -58,7 +58,6 @@ func loadDevices(path string) error {
 			AndroidID:          generateAndroidID(),
 			ScreenWidth:        getInt(raw, "screen_width", 1080),
 			ScreenHeight:       getInt(raw, "screen_height", 1920),
-			ScreenDensity:      getFloat(raw, "screen_density", 2.0),
 			VersionRelease:     getString(raw, "version_release"),
 			VersionSDK:         getInt(raw, "version_sdk", 29),
 			VersionCodename:    getStringDefault(raw, "version_codename", "REL"),

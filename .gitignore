@@ -1,0 +1,21 @@
+# Test files - keep local
+http/
+scale_flow.go
+test_flow.go
+
+# Target-specific data
+panera_hits.txt
+proxies.txt
+base.apk
+
+# Frida hooks (RE tools)
+frida/
+
+# Conversion scripts
+convert_devices.py
+
+# Go build
+*.exe
+*.dll
+*.so
+*.dylib

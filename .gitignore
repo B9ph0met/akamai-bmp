@@ -18,4 +18,4 @@ convert_devices.py
 *.exe
 *.dll
 *.so
-*.dylib
+*.dylib.DS_Store
